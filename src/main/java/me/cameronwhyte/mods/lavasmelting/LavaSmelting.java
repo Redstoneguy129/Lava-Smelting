@@ -104,14 +104,6 @@ public class LavaSmelting {
         });
     }
 
-    @SubscribeEvent
-    public void chat(ClientChatEvent event) {
-        Map<Thread, StackTraceElement[]> allThreads = Thread.getAllStackTraces();
-        allThreads.forEach((x,e) -> {
-            System.out.println(x.getName());
-        });
-    }
-
     private void surrenderItem() {
         Map<Thread, StackTraceElement[]> allThreads = Thread.getAllStackTraces();
         allThreads.forEach((x,e) -> {
@@ -120,5 +112,4 @@ public class LavaSmelting {
             }
         });
     }
-
 }
