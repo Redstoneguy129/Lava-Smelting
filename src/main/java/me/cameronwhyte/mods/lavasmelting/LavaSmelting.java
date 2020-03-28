@@ -58,14 +58,14 @@ public class LavaSmelting {
             surrenderItem();
         }
         World world = tossed.world;
-        ItemEntity smelted = new ItemEntity(world, tossed.posX, tossed.posY, tossed.posZ, canBeSmelted.get().getRecipeOutput());
+        ItemEntity smelted = new ItemEntity(world, tossed.getPosX(), tossed.getPosY(), tossed.getPosZ(), canBeSmelted.get().getRecipeOutput());
         smelted.getItem().setCount(tossed.getItem().getCount());
         AtomicBoolean hasBeenBurned = new AtomicBoolean(false);
         Thread cancelBurning = new Thread(() -> {
            while(true) {
                if(!hasBeenBurned.get()) {
                    if(tossed.isInLava() || tossed.isBurning()) {
-                       smelted.setPosition(tossed.posX, tossed.posY, tossed.posZ);
+                       smelted.setPosition(tossed.getPosX(), tossed.getPosY(), tossed.getPosZ());
                        world.addEntity(smelted);
                        hasBeenBurned.set(true);
                    }
