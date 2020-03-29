@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "me.cameronwhyte.mods.lavasmelting.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": ["NoItemSmelt"],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
