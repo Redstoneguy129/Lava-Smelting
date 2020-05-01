@@ -1,19 +1,12 @@
 package me.cameronwhyte.mods.lavasmelting;
 
-import com.sun.management.OperatingSystemMXBean;
+import net.minecraft.entity.EntityClassification;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.world.World;
-import net.minecraftforge.client.event.ClientChatEvent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.item.ItemExpireEvent;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -22,18 +15,16 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.management.ManagementFactory;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 @Mod("lavasmelting")
 public class LavaSmelting {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-    private Random random = new Random();
+
+    public static EntityType<?> ITEM_ENTITY = EntityType.Builder.create((entityType, world) -> new NewItemEntity(world), EntityClassification.MISC)
+            .build("lavasmelting"+":item_entity")
+            .setRegistryName(new ResourceLocation("lavasmelting", "item_entity"));
+
+
 
     public LavaSmelting() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -49,6 +40,67 @@ public class LavaSmelting {
         LOGGER.info("Lava Smelting client is setup!");
     }
 
+    @SubscribeEvent
+    public void itemJoinWorld(EntityJoinWorldEvent event) {
+        if(event.getEntity() instanceof ItemEntity && !(event.getEntity() instanceof NewItemEntity)) {
+            event.setCanceled(true);
+            NewItemEntity item = new NewItemEntity(event.getWorld(), event.getEntity().getPosX(), event.getEntity().getPosY(), event.getEntity().getPosZ(), ((ItemEntity) event.getEntity()).getItem());
+            System.out.println("made item noW!");
+            item.setMotion(event.getEntity().getMotion());
+            item.setDefaultPickupDelay();
+            event.getWorld().addEntity(item);
+            System.out.println("Added item");
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = "lavasmelting", bus = Mod.EventBusSubscriber.Bus.MOD)
+    public static class Registration {
+        @SubscribeEvent
+        public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
+            event.getRegistry().registerAll(ITEM_ENTITY);
+            System.out.println("LOADED");
+        }
+    }
+
+    /*@SubscribeEvent
+    public void worldTick(TickEvent.PlayerTickEvent event) {
+        World world = event.player.world;
+        world.getPlayers().forEach(player -> {
+            List<Entity> entities = world.getEntitiesWithinAABB(ItemEntity.class, new AxisAlignedBB(player.getPosX()-15, player.getPosY()-15, player.getPosZ()-15, player.getPosX()+15, player.getPosY()+15, player.getPosZ()+15));
+            entities.forEach(x -> {
+                if(!((ItemEntity) x).getItem().getOrCreateTag().contains("used")) {
+                    Optional<FurnaceRecipe> canBeSmelted = world.getRecipeManager().getRecipe(IRecipeType.SMELTING, new Inventory(((ItemEntity) x).getItem()), world);
+                    if(canBeSmelted.isPresent()) {
+                        if(x.isInLava() || x.isBurning()) {
+                            ItemEntity smelted = new ItemEntity(world, x.getPosX(), x.getPosY(), x.getPosZ(), canBeSmelted.get().getRecipeOutput());
+                            smelted.getItem().setCount(((ItemEntity) x).getItem().getCount());
+                            smelted.getItem().getOrCreateTag().putString("type", "lavasmelting");
+                            ((ItemEntity) x).getItem().getOrCreateTag().putString("used", "lavasmelting");
+                            smelted.setPosition(x.getPosX(), x.getPosY(), x.getPosZ());
+                            world.addEntity(smelted);
+                        }
+                    }
+                }
+                if(((ItemEntity) x).getItem().getOrCreateTag().contains("type")) {
+                    if(((ItemEntity) x).getItem().getOrCreateTag().get("type").equals("lavasmelting")) {
+                        if(x.isInLava() || x.isBurning()) {
+                            x.extinguish();
+                            x.setInvulnerable(true);
+                            x.setMotion(random.nextGaussian() / 8, .15, random.nextGaussian() / 8);
+                        }
+                        x.setInvulnerable(false);
+                    }
+                }
+            });
+        });
+    }
+
+    @SubscribeEvent
+    public void pickupBurnedItem(PlayerEvent.ItemPickupEvent event) {
+        event.getStack().removeChildTag("type");
+    }
+
+    /*
     @SubscribeEvent
     public void burnableItem(ItemTossEvent event) {
         ItemEntity tossed = event.getEntityItem();
@@ -111,5 +163,5 @@ public class LavaSmelting {
                 x.stop();
             }
         });
-    }
+    }*/
 }
