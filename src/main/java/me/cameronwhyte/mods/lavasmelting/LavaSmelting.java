@@ -20,11 +20,9 @@ public class LavaSmelting {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static EntityType<?> ITEM_ENTITY = EntityType.Builder.create((entityType, world) -> new NewItemEntity(world), EntityClassification.MISC)
+    public static EntityType<?> ITEM_ENTITY = EntityType.Builder.create(NewItemEntity::new, EntityClassification.MISC)
             .build("lavasmelting"+":item_entity")
             .setRegistryName(new ResourceLocation("lavasmelting", "item_entity"));
-
-
 
     public LavaSmelting() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
