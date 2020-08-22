@@ -1,13 +1,20 @@
 package me.cameronwhyte.mods.lavasmelting;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -19,10 +26,6 @@ import org.apache.logging.log4j.Logger;
 public class LavaSmelting {
 
     private static final Logger LOGGER = LogManager.getLogger();
-
-    public static EntityType<?> ITEM_ENTITY = EntityType.Builder.create(NewItemEntity::new, EntityClassification.MISC)
-            .build("lavasmelting"+":item_entity")
-            .setRegistryName(new ResourceLocation("lavasmelting", "item_entity"));
 
     public LavaSmelting() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -40,23 +43,24 @@ public class LavaSmelting {
 
     @SubscribeEvent
     public void itemJoinWorld(EntityJoinWorldEvent event) {
-        if(event.getEntity() instanceof ItemEntity && !(event.getEntity() instanceof NewItemEntity)) {
-            event.setCanceled(true);
+        /*if(event.getEntity() instanceof ItemEntity && !(event.getEntity() instanceof NewItemEntity)) {
             NewItemEntity item = new NewItemEntity(event.getWorld(), event.getEntity().getPosX(), event.getEntity().getPosY(), event.getEntity().getPosZ(), ((ItemEntity) event.getEntity()).getItem());
             System.out.println("made item noW!");
             item.setMotion(event.getEntity().getMotion());
             item.setDefaultPickupDelay();
+            event.getEntity().remove();
             event.getWorld().addEntity(item);
             System.out.println("Added item");
-        }
-    }
-
-    @Mod.EventBusSubscriber(modid = "lavasmelting", bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class Registration {
-        @SubscribeEvent
-        public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
-            event.getRegistry().registerAll(ITEM_ENTITY);
-            System.out.println("LOADED");
+        }*/
+        if(event.getEntity() instanceof ItemEntity) {
+            if(!(event.getEntity() instanceof NewItemEntity)) {
+                ItemEntity oldItem = (ItemEntity) event.getEntity();
+                World world = event.getWorld();
+                NewItemEntity newItemEntity = new NewItemEntity(world, oldItem.getPosX(), oldItem.getPosY(), oldItem.getPosZ(), oldItem.getItem());
+                newItemEntity.setMotion(oldItem.getMotion());
+                oldItem.remove();
+                world.addEntity(newItemEntity);
+            }
         }
     }
 
