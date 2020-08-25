@@ -1,20 +1,24 @@
 modLoader="javafml"
-loaderVersion="[31,)"
+loaderVersion="[33,)"
+license="MIT"
+
 [[mods]]
 modId="lavasmelting"
-version="1.1"
+version="2.0"
 displayName="Lava Smelting"
 authors="Redstoneguy129"
 description="Smelt your ores with lava!"
+
 [[dependencies.lavasmelting]]
     modId="forge"
     mandatory=true
-    versionRange="[31,)"
+    versionRange="[33,)"
     ordering="NONE"
     side="BOTH"
+
 [[dependencies.lavasmelting]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
+    versionRange="[1.16.2]"
     ordering="NONE"
     side="BOTH"

@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "package": "me.cameronwhyte.mods.lavasmelting.mixins",
+  "refmap": "lavasmelting.refmap.json",
+  "mixins": [
+    "NewItemEntity"
+  ]
+}
